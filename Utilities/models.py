@@ -30,14 +30,15 @@ def log_dir_build(root_dir, prefix=""):
     return "{}/{}/".format(root_logdir, name)
 
 class DNN_Model:
-    def __init__(self, n_epochs=200, batch_size=10, n_outputs=4, log_dir="./tf_logs", model_name="dnn_model.ckpt"):
+    def __init__(self, n_epochs=200, batch_size=10, n_outputs=4, log_dir="./tf_logs", model_name="dnn_model.ckpt", device_dictionary={'GPU':0}):
         self.n_epochs=n_epochs
         self.batch_size=batch_size
         self.n_outputs=n_outputs
         self.log_dir=log_dir
         self.model_name=model_name
         self.model_path=""
-    
+        self.device_dictionary=device_dictionary
+
     def fit(self, X_data, y_data):
         #Build the graph
         reset_graph()
@@ -118,7 +119,7 @@ class DNN_Model:
         file_writer = tf.summary.FileWriter(self.model_path, tf.get_default_graph())
         
         extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-        config = tf.ConfigProto()
+        config = tf.ConfigProto(device_count = self.device_dictionary)
         config.allow_soft_placement=True
         with tf.Session(config=config) as sess:
             current_best = 0
